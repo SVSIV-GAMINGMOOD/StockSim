@@ -1,35 +1,25 @@
-"use server";
+"use server"
 
-import { createClient } from "@/lib/supabase/server"; 
-
-// Fetch all lessons for a module
-export async function getLessonsByModule(moduleId: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("lessons")
-    .select("*") // includes content now
-    .eq("module_id", moduleId)
-    .order("order_index", { ascending: true });
-
-  if (error) throw error;
-  return data;
-}
+import { createClient } from "@/lib/supabase/client";
+import { cacheLife, cacheTag } from "next/cache";
 
 // Fetch a single lesson with its Markdown content
 export async function getLessonWithContent(lessonId: string) {
-  const supabase = await createClient();
+    'use cache'
+    cacheLife('weeks');
+    cacheTag("lessons");
 
-  const { data, error } = await supabase
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
     .from("lessons")
     .select("*") // content is part of lessons now
     .eq("id", lessonId)
     .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
 }
-
 
 export async function getLessonWithNavigation(lessonId: string) {
   const supabase = await createClient();

@@ -1,27 +1,34 @@
 import Footer from "@/components/footer";
+import { getModuleLessonsWithUserProgress } from "@/app/learn/actions/(modules)/userModules";
+import { getLessonWithContent, getLessonWithNavigation } from "@/app/learn/actions/(lessons)/lessons";
+import { getProfile } from "actions/profiles";
+
+import CourseNavbar from "../../_components/CourseNavbar";
 import LessonBottomNav from "./_components/LessonBottomNav";
 import LessonContent from "./_components/LessonContent";
 import LessonRightBar from "./_components/LessonRightBar";
 import LessonSidebar from "./_components/LessonSidebar";
-import CourseNavbar from "../../_components/CourseNavbar";
-
-import { getProfile } from "../../../../../../actions/profiles";
-import { getLessonWithContent, getLessonWithNavigation } from "../../../../../../actions/learn/(lessons)/lessons";
-import { getModuleLessonsWithUserProgress } from "../../../../../../actions/learn/(modules)/user_modules";
 import MarkCompleteButton from "./_components/MarkCompleteButton";
 
+
 interface PageProps {
-  params: {
+  params: Promise<{
     courseSlug: string;
     moduleSlug: string;
     lessonId: string;
-  };
+  }>;
 }
 
 export default async function LessonPreviewPage({ params }: PageProps) {
   const { courseSlug, moduleSlug, lessonId } = await params;
+  
+  // fetch user details 
+  const data = await getProfile();
+  if (!data) {
+  return <div>Not authenticated</div>;
+  }
+  const { user, profile } = data;
 
-  const profile = await getProfile();
   const sidebarData = await getModuleLessonsWithUserProgress(
     lessonId,
     profile.id
@@ -30,6 +37,7 @@ export default async function LessonPreviewPage({ params }: PageProps) {
   const isCompleted = currentLesson?.status === "COMPLETED";
   const lesson = await getLessonWithContent(lessonId);
   const nav = await getLessonWithNavigation(lessonId);
+  
 
   const completedLessons = sidebarData.lessons.filter(l => l.status === "COMPLETED").length;
   const totalLessons = sidebarData.lessons.length;

@@ -2,11 +2,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Progress } from "@/components/ui/progress";
 import { getProfile } from "../../../actions/profiles";
 import { getUserBadgeCount } from "../../../actions/userBadges";
-import { getUserProgress } from "../../../actions/learn/(modules)/user_modules";
 import { Button } from "@/components/ui/button";
-import { getCourses } from "../../../actions/learn/(courses)/courses";
-import { getUserCourses } from "../../../actions/learn/(courses)/userCourses";
-import { CourseCard } from "./_components/CourseCard";
+import { getUserProgress } from "./actions/(courses)/userCourses";
+import { Suspense } from "react";
+import { CoursesSection } from "./_components/CoursesSection";  
 
 export interface CourseUI {
   id: string;
@@ -19,35 +18,20 @@ export interface CourseUI {
 }
 
 export default async function LearnPage() {
-  const profile = await getProfile();
+  const data = await getProfile();
+  if (!data) {
+    return <div>Not authenticated</div>;
+    }
+  const { user, profile } = data;
   const total_badges = await getUserBadgeCount();
 
-  // overall modules progress (already working)
-  const user_progress = await getUserProgress(profile.id);
+  // overall Courses progress
+  const user_progress = await getUserProgress();
   const totalProgress =
     user_progress.length > 0
       ? user_progress.reduce((sum, m) => sum + (m.progress ?? 0), 0) /
         user_progress.length
       : 0;
-
-  // ---------- COURSES ----------
-  const coursesData = await getCourses();     // <-- IMPORTANT await
-  const userCourses = await getUserCourses(); // <-- fetch all user course progress
-
-  // Map: course_id -> progress
-  const courseProgressMap = new Map(
-    userCourses.map((uc) => [uc.course_id, uc.progress ?? 0])
-  );
-
-  const courses = coursesData.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    title: c.title,
-    description: c.description,
-    xp_reward: c.xp_reward,
-    level: c.level,
-    progress: courseProgressMap.get(c.id) ?? 0,
-  }));
 
   return (
     <DashboardLayout>
@@ -108,29 +92,26 @@ export default async function LearnPage() {
         </div>
 
         {/* Courses Section */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Your Courses</h2>
-        </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Your Courses</h2>
+          </div>
 
-        {courses.length === 0 ? (
-          <div className="p-8 border rounded-2xl text-center text-muted-foreground">
-            No courses enrolled yet. Start learning and track progress here ✨
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                title={course.title}
-                progress={course.progress}
-                description={course.description}
-                xp_reward={course.xp_reward}
-                level={course.level}
-                slug={course.slug}
-              />
-            ))}
-          </div>
-        )}
+          <Suspense
+            fallback={
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-48 rounded-2xl border animate-pulse bg-muted"
+                  />
+                ))}
+              </div>
+            }
+          >
+            <CoursesSection />
+          </Suspense>
+        </div>
       </div>
     </DashboardLayout>
   );

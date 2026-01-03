@@ -62,8 +62,8 @@ const Header = () => {
               </Button>
 
               <div className="hidden md:flex items-center gap-3">
-                <Link href='/auth'><Button variant="ghost" size="sm">Log In</Button></Link>
-                <Link href='/auth?signup=true'><Button size="sm">Get Started</Button></Link>
+                <Link href='/auth/login'><Button variant="ghost" size="sm">Log In</Button></Link>
+                <Link href='/auth/sign-up'><Button size="sm">Get Started</Button></Link>
               </div>
 
               {/* Mobile Menu Toggle */}
@@ -104,12 +104,12 @@ const Header = () => {
               </Link>
 
               <div className="flex gap-3 pt-2">
-                <Link href='/auth'>
+                <Link href='/auth/login'>
                   <Button variant="outline" className="w-full" onClick={() => setMobileOpen(false)}>
                     Log In
                   </Button>
                 </Link>
-                <Link href='/auth?signup=true'>
+                <Link href='/auth/sign-up'>
                   <Button className="w-full" onClick={() => setMobileOpen(false)}>
                     Get Started
                   </Button>

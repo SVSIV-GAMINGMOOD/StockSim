@@ -1,21 +1,28 @@
 "use server"
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
-export async function getProfile() {
+export const getProfile = cache(async () => {
     const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) throw new Error("Not authenticated");
 
-    const { data, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+    const {
+    data: { user },
+    error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) return null;
+
+    const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
     if (profileError) throw profileError;
-    return data;
-}
+
+    return { user, profile };
+});
 
 export async function updateProfile(values: {
     username?: string;
@@ -24,20 +31,19 @@ export async function updateProfile(values: {
     xp?: number;
 }) {
     const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Not authenticated");
 
     const { data, error } = await supabase
-        .from("profiles")
-        .update(values)
-        .eq("id", user.id)
-        .select()
-        .single();
+    .from("profiles")
+    .update(values)
+    .eq("id", user.id)
+    .select()
+    .single();
 
     if (error) throw error;
-    revalidatePath("/profile"); 
+
+    revalidatePath("/profile");
     return data;
 }
 

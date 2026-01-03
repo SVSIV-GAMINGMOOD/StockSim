@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2 } from "lucide-react";
-import { completeLessonAction } from "../../../../../../../actions/learn/(lessons)/user_lessons";
+import { completeLessonAction } from "@/app/learn/actions/(lessons)/userLessons";
 
 export default function MarkCompleteButton({
   userId,

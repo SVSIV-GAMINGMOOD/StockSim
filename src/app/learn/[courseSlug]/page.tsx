@@ -1,21 +1,37 @@
+import Footer from "@/components/footer";
+import { getProfile } from "actions/profiles";
+
+import {
+  getCourseLessonCount,
+  getCourseReadTime,
+  getCoursesBySlug,
+  getRandomRelatedCourses,
+} from "../actions/(courses)/courses";
+import { getModulesWithLessons } from "../actions/(courses)/userCourses";
+
 import CourseNavbar from "./_components/CourseNavbar";
 import CourseHeader from "./_components/CourseHeader";
 import CourseAbout from "./_components/CourseAbout";
 import CourseModulesAccordion from "./_components/CourseModulesAccordion";
 import CourseRelated from "./_components/CourseRelated";
-import { getCourseLessonCount, getCourseReadTime, getCoursesBySlug, getModulesWithLessons, getRandomRelatedCourses } from "../../../../actions/learn/(courses)/courses";
-import { getProfile } from "../../../../actions/profiles";
-import Footer from "@/components/footer";
 
 
-export default async function CoursePage({ params }: { params: { courseSlug: string } }) {
+export default async function CoursePage({ params }: { params: Promise<{ courseSlug: string }> }) {
   const { courseSlug } = await params;
+  // fetch user details 
+  const data = await getProfile();
+  if (!data) {
+  return <div>Not authenticated</div>;
+  }
+  const { user, profile } = data;
+
+  // GET course 
   const course = await getCoursesBySlug(courseSlug);
   if (!course) return <div>Course not found</div>;
 
+  // GET courses stats 
   const totalLessons = await getCourseLessonCount(course.id);
   const totalReadTime = await getCourseReadTime(course.id);
-  const profile = await getProfile();
 
   const modules = await getModulesWithLessons(profile.id, course.id);   
   const randomCourses = await getRandomRelatedCourses(course.id)

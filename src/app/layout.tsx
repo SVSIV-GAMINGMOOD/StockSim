@@ -13,10 +13,6 @@ export const metadata: Metadata = {
   authors: [
     { name: "Sarthak Jain" } 
   ],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
 
   openGraph: {
     title: "StockSim",
@@ -30,11 +26,16 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <Toaster />
           {children}
         </ThemeProvider>

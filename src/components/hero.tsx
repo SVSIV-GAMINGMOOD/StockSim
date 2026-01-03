@@ -29,7 +29,7 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Link href='/auth?signup=true'>
+            <Link href='/auth/sign-up'>
               <Button variant='hero' size='xl' className='w-full sm:w-auto group'>
                 Start Learning Free
                 <ArrowRight className='w-5 h-5 group-hover:translate-x-1 transition-transform' />

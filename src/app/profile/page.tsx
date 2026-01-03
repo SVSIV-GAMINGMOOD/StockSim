@@ -1,7 +1,5 @@
 import DashboardLayout from '@/components/DashboardLayout'
 import { Award, Calendar, Flame, Mail, Shield, TrendingUp, Trophy, User, Zap } from 'lucide-react'
-import { getProfile } from '../../../actions/profiles';
-import { createClient } from '@/lib/supabase/server';
 import { Progress } from '@/components/ui/progress';
 import { getUserBadgeCount, getUserBadges } from '../../../actions/userBadges';
 import { getPortfolioReturn } from '../../../actions/portfolios';
@@ -10,33 +8,22 @@ import { cn } from '@/lib/utils';
 import { getBadgeById } from '../../../actions/badges';
 import Image from 'next/image';
 import EditProfileButton from './_components/EditProfileButton';
+import { getProfile } from 'actions/profiles';
 
 export default async function ProfilePage () {
     // fetch user details 
-    const supabase = await createClient();
-    const {
-        data: { user },
-        error,
-    } = await supabase.auth.getUser();
-    if (error || !user) return <div>Not authenticated</div>;
-
-    // format the joining date 
-    const joinDate = new Date(user.created_at).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-    });
-
-    // fetch user profile 
-    let profile;
-    try {
-        profile = await getProfile();
-    } catch (err) {
-        return (
-            <div className="p-6">
-                <h2 className="text-xl font-semibold">Not authenticated</h2>
-            </div>
-        )
+    const data = await getProfile();
+    if (!data) {
+    return <div>Not authenticated</div>;
     }
+
+    const { user, profile } = data;
+
+    // format joining date (from profile or user table)
+    const joinDate = new Date(profile.created_at).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    });
 
     // Fetch user badges count 
     const userBadges = await getUserBadges();

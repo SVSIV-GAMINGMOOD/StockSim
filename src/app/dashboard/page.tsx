@@ -1,23 +1,27 @@
 import DashboardLayout from "@/components/DashboardLayout";
-import { getProfile } from "../../../actions/profiles";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BarChart3, BookOpen, Flame, TrendingUp, Zap } from "lucide-react";
+import { getProfile, updateLoginStreak } from "actions/profiles";
+
 
 export default async function DashboardPage() {
+
   // fetch user profile 
-  let profile;
-  try {
-      profile = await getProfile();
-  } catch (err) {
-      return (
-          <div className="p-6">
-              <h2 className="text-xl font-semibold">Not authenticated</h2>
-          </div>
-      )
+  const data = await getProfile();
+  if (!data) {
+  return <div>Not authenticated</div>;
   }
 
-  // const today_xp = await getTodayXP(profile.id);
+  const { user, profile } = data;
+
+  if (!profile) {
+    return (
+      <div className="p-6">
+        <h2 className="text-xl font-semibold">Not authenticated</h2>
+      </div>
+    );
+  }
 
   const stats = [
     {

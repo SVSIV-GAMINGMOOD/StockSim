@@ -129,7 +129,7 @@ const Home = () => {
             <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
               Join thousands of learners who are building their financial future. It's free, safe, and educational.
             </p>
-            <Link href='/auth?signup=true'>
+            <Link href='/auth/sign-up'>
               <Button variant="hero" size="xl" className="group">
                 Create Free Account
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
