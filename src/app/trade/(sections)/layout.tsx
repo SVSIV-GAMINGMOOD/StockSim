@@ -1,3 +1,4 @@
+import Footer from '@/components/footer';
 import TradeNavbar from './_components/TradeNavbar';
 import WatchlistSidebar from './_components/WatchlistSidebar';
 
@@ -11,16 +12,19 @@ export default function TradeLayout({
       {/* Top Navbar */}
       <TradeNavbar />
 
-      {/* Content Area */}
-      <div className="flex flex-1">
+      {/* Middle section */}
+      <div className="flex flex-1 min-h-0">
         {/* Left Sidebar */}
         <WatchlistSidebar />
 
         {/* Right Content */}
-        <main className="flex-1 pt-4 px-6">
+        <main className="flex-1 pt-4 px-6 pb-12">
           {children}
         </main>
       </div>
+
+      <Footer />
     </div>
   );
 }
+

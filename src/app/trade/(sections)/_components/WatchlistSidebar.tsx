@@ -1,14 +1,21 @@
 'use client';
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MoreHorizontal, Plus, BarChart2, ArrowUpRight, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Plus,
+  Search,
+  ArrowUpRight,
+  BarChart2,
+  Trash2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Stock {
   symbol: string;
-  price: string;
-  change: string;
+  price: number;
+  change: number;
 }
 
 interface Watchlist {
@@ -17,92 +24,126 @@ interface Watchlist {
   stocks: Stock[];
 }
 
-const watchlistsData: Watchlist[] = [
+const watchlists: Watchlist[] = [
   {
     id: 1,
-    name: "Tech Giants",
+    name: "WATCHLIST 1",
     stocks: [
-      { symbol: "AAPL", price: "$173.45", change: "+1.2%" },
-      { symbol: "MSFT", price: "$315.10", change: "-0.5%" },
-      { symbol: "GOOGL", price: "$138.20", change: "+0.8%" },
+      { symbol: "RELIANCE", price: 2489.4, change: 1.12 },
+      { symbol: "TCS", price: 3781.2, change: -0.34 },
+      { symbol: "INFY", price: 1562.8, change: 0.58 },
     ],
   },
   {
     id: 2,
-    name: "Crypto Stocks",
+    name: "WATCHLIST 2",
     stocks: [
-      { symbol: "COIN", price: "$285.50", change: "+2.1%" },
-      { symbol: "RIOT", price: "$24.30", change: "-1.8%" },
-      { symbol: "MARA", price: "$11.20", change: "+0.9%" },
+      { symbol: "HDFCBANK", price: 1654.9, change: -0.81 },
+      { symbol: "ICICIBANK", price: 1021.3, change: 0.94 },
     ],
   },
 ];
 
 export default function WatchlistSidebar() {
-  const [activeWatchlist, setActiveWatchlist] = useState<number>(1);
+  const [activeId, setActiveId] = useState(1);
+  const [search, setSearch] = useState("");
+
+  const activeWatchlist = watchlists.find(w => w.id === activeId)!;
+
+  const filteredStocks = activeWatchlist.stocks.filter(stock =>
+    stock.symbol.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <aside className="hidden md:flex flex-col w-72 h-screen border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Watchlists</h2>
-        <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition">
-          <Plus className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+    <aside className="hidden md:flex flex-col w-75 h-screen border-r bg-background">
+      {/* Search */}
+      <div className="p-3 border-b">
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search & add"
+            className="pl-8 h-9 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Watchlist Tabs */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b overflow-x-auto">
+        {watchlists.map((wl) => (
+          <button
+            key={wl.id}
+            onClick={() => setActiveId(wl.id)}
+            className={cn(
+              "text-xs px-2 py-1 rounded whitespace-nowrap transition",
+              activeId === wl.id
+                ? "bg-muted text-foreground font-medium"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            {wl.name}
+          </button>
+        ))}
+        <button className="ml-auto p-1 rounded hover:bg-muted">
+          <Plus className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
 
-      <ScrollArea className="flex-1 px-2 py-3">
-        {watchlistsData.map((watchlist) => (
-          <div key={watchlist.id} className="mb-4">
-            <h3
-              className={`px-2 py-1 rounded text-sm font-semibold cursor-pointer ${
-                activeWatchlist === watchlist.id
-                  ? "bg-indigo-500 text-white"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800"
-              }`}
-              onClick={() => setActiveWatchlist(watchlist.id)}
-            >
-              {watchlist.name}
-            </h3>
+      {/* Stocks */}
+      <ScrollArea className="flex-1">
+        <div className="divide-y">
+          {filteredStocks.map((stock) => {
+            const isUp = stock.change >= 0;
 
-            <Card className="mt-2 p-2 bg-white dark:bg-gray-800 shadow-sm">
-              {watchlist.stocks.map((stock) => (
-                <div
-                  key={stock.symbol}
-                  className="flex justify-between items-center px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition group"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {stock.symbol}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 flex gap-1">
-                      {stock.price}
-                      <span
-                        className={`${
-                          stock.change.startsWith("+") ? "text-green-500" : "text-red-500"
-                        }`}
-                      >
-                        {stock.change}
-                      </span>
-                    </p>
-                  </div>
-
-                  {/* Hover options like Zerodha */}
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                    <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                      <ArrowUpRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    </button>
-                    <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
-                      <BarChart2 className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    </button>
-                    <button className="p-1 rounded hover:bg-red-500 hover:text-white">
-                      <Trash className="w-4 h-4" />
-                    </button>
-                  </div>
+            return (
+              <div
+                key={stock.symbol}
+                className="group flex items-center px-3 py-2 hover:bg-muted transition"
+              >
+                {/* Symbol */}
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{stock.symbol}</p>
                 </div>
-              ))}
-            </Card>
-          </div>
-        ))}
+
+                {/* Price */}
+                <div className="text-right mr-3">
+                  <p className="text-sm font-medium">
+                    {stock.price.toFixed(2)}
+                  </p>
+                  <p
+                    className={cn(
+                      "text-xs",
+                      isUp ? "text-green-500" : "text-red-500"
+                    )}
+                  >
+                    {isUp ? "+" : ""}
+                    {stock.change.toFixed(2)}%
+                  </p>
+                </div>
+
+                {/* Hover Actions */}
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                  <button className="p-1 rounded hover:bg-background">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-background">
+                    <BarChart2 className="w-4 h-4" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-red-500 hover:text-white">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredStocks.length === 0 && (
+            <p className="text-sm text-muted-foreground p-4 text-center">
+              No instruments found
+            </p>
+          )}
+        </div>
       </ScrollArea>
     </aside>
   );
