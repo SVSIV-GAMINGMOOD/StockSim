@@ -29,6 +29,13 @@ type FinnhubSearchResponse = {
     result: FinnhubSearchResult[];
 };
 
+type WatchlistQuote = {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+};
+
 async function fetchJSON<T>(url: string, revalidateSeconds?: number): Promise<T> {
     const options: RequestInit & { next?: { revalidate?: number } } = revalidateSeconds
     ? { cache: 'force-cache', next: { revalidate: revalidateSeconds } }
@@ -124,4 +131,48 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
     return [];
     }
 });
+
+
+export const getWatchlistQuotes = cache(
+  async (symbols: string[]): Promise<WatchlistQuote[]> => {
+    try {
+      const token =
+        process.env.FINNHUB_API_KEY ??
+        process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+
+      if (!token || symbols.length === 0) return [];
+
+      const quotes = await Promise.all(
+        symbols.map(async (symbol) => {
+          try {
+            const url = `${FINNHUB_BASE_URL}/quote?symbol=${symbol}&token=${token}`;
+
+            // 👇 Revalidate every 60 seconds (safe for free tier)
+            const data = await fetch(url, {
+              cache: 'force-cache',
+              next: { revalidate: 60 },
+            }).then((res) => res.json());
+
+            return {
+              symbol,
+              price: data.c ?? 0,
+              change: data.d ?? 0,
+              changePercent: data.dp ?? 0,
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      return quotes.filter(
+        (q): q is WatchlistQuote => q !== null
+      );
+    } catch (err) {
+      console.error('Watchlist quote error:', err);
+      return [];
+    }
+  }
+);
+
 

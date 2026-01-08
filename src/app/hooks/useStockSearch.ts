@@ -20,7 +20,6 @@ export function useStockSearch() {
   const [results, setResults] = useState<StockWithWatchlistStatus[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 NEW
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);

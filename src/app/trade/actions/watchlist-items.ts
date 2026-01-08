@@ -63,3 +63,35 @@ export async function deleteWatchlistItem(id: string) {
   if (error) throw error
   return { success: true }
 }
+
+export async function getUserWatchlists() {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+
+  const { data, error } = await supabase
+    .from("watchlist_groups")
+    .select(`
+      id,
+      name,
+      watchlist_items (
+        id,
+        symbol
+      )
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true })
+
+  if (error) throw error
+
+  return data.map((wl) => ({
+    id: wl.id,
+    name: wl.name,
+    stocks: wl.watchlist_items.map((item) => ({
+      id: item.id,
+      symbol: item.symbol,
+    })),
+  }))
+}
+
