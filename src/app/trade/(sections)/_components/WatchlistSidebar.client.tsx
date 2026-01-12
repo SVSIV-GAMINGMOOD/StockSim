@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStockSearch } from "@/app/hooks/useStockSearch";
-import { usePriceStore } from "../../../stores/price.store";
-import { useLivePrices } from "@/app/hooks/useLivePrices";
 import Link from "next/link";
 
 /* -------------------- TYPES -------------------- */
@@ -34,6 +32,16 @@ interface SearchResult {
   name: string;
   exchange: string;
   type: string;
+}
+
+interface InstrumentMeta {
+  symbol: string;
+  name: string;
+  exchange: string;
+  type: string;
+  sheetPrice: number | null;
+  sheetChangePct: number | null;
+  delay: number | null;
 }
 
 /* -------------------- COMPONENT -------------------- */
@@ -58,16 +66,37 @@ export default function WatchlistSidebar({
     (w) => w.id === activeId
   );
 
-  /* ---------------- Live prices ---------------- */
+  const [instrumentMap, setInstrumentMap] = useState<
+    Record<string, InstrumentMeta>
+  >({});
 
-  const symbols = useMemo(
-    () => activeWatchlist?.stocks.map((s) => s.symbol) ?? [],
-    [activeWatchlist]
-  );
+  useEffect(() => {
+    let mounted = true;
 
-  useLivePrices(symbols);
+    async function loadInstruments() {
+      try {
+        const res = await fetch("/api/instruments");
+        const data: InstrumentMeta[] = await res.json();
 
-  const prices = usePriceStore((s) => s.prices);
+        if (!mounted) return;
+
+        const map = Object.fromEntries(
+          data.map((i) => [i.symbol, i])
+        );
+
+        setInstrumentMap(map);
+      } catch (e) {
+        console.error("Failed to load instruments");
+      }
+    }
+
+    loadInstruments();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
 
   /* ---------------- Search ---------------- */
 
@@ -147,7 +176,8 @@ export default function WatchlistSidebar({
           activeWatchlist && (
             <WatchlistStocks
               watchlist={activeWatchlist}
-              prices={prices}
+              // prices={prices}
+              instrumentMap={instrumentMap}
             />
           )
         )}
@@ -160,13 +190,10 @@ export default function WatchlistSidebar({
 
 function WatchlistStocks({
   watchlist,
-  prices,
+  instrumentMap,
 }: {
   watchlist: Watchlist;
-  prices: Record<
-    string,
-    { price: number; change: number; changePercent?: number }
-  >;
+  instrumentMap: Record<string, InstrumentMeta>;
 }) {
   if (!watchlist.stocks.length) {
     return (
@@ -179,8 +206,16 @@ function WatchlistStocks({
   return (
     <div className="divide-y">
       {watchlist.stocks.map((stock) => {
-        const live = prices[stock.symbol];
-        const isPositive = (live?.change ?? 0) >= 0;
+        const info = instrumentMap[stock.symbol];
+
+        const price = info?.sheetPrice;
+        const changePct = info?.sheetChangePct;
+        const isPositive = (changePct ?? 0) >= 0;
+
+        const hasChange =
+          typeof changePct === "number" && !Number.isNaN(changePct);
+
+        // console.log(stock.symbol, live.price, live.changePercent)
 
         return (
           <div
@@ -190,29 +225,29 @@ function WatchlistStocks({
             <div className="flex-1">
               <p className="text-sm font-medium">{stock.symbol}</p>
               <p className="text-xs text-muted-foreground">
-                NSE · EQ
+                {info?.exchange ?? "—"} · {info?.type ?? "EQ"}
               </p>
             </div>
 
             <div className="text-right">
               <p className="text-sm font-medium">
-                {live ? `₹${live.price.toFixed(2)}` : "--"}
+                {price !== null && price !== undefined
+                  ? `${info?.exchange === "NSE" || info?.exchange === "BSE" ? "₹" : "$"}${price.toFixed(2)}`
+                  : "--"}
               </p>
 
               <p
                 className={cn(
                   "text-xs",
-                  live
+                  hasChange
                     ? isPositive
                       ? "text-green-600"
                       : "text-red-600"
                     : "text-muted-foreground"
                 )}
               >
-                {live
-                  ? `${isPositive ? "+" : ""}${(
-                      live.changePercent ?? live.change
-                    ).toFixed(2)}%`
+                {hasChange
+                  ? `${isPositive ? "+" : ""}${changePct.toFixed(2)}%`
                   : "--"}
               </p>
             </div>
@@ -220,7 +255,7 @@ function WatchlistStocks({
             {/* NEEDS DYNAMIC ROUTING ! */}
             <div className="ml-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
               <Link
-                href={`/some-link`} 
+                href={`/trade/stocks/${stock.symbol}`} 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted/10 transition-colors"

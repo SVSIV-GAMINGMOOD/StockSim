@@ -153,6 +153,8 @@ export const getWatchlistQuotes = cache(
               next: { revalidate: 60 },
             }).then((res) => res.json());
 
+            // console.log(data.c, data.d, data.dp);
+
             return {
               symbol,
               price: data.c ?? 0,
@@ -174,5 +176,3 @@ export const getWatchlistQuotes = cache(
     }
   }
 );
-
-

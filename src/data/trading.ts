@@ -136,96 +136,124 @@ export const MARKET_DATA_WIDGET_CONFIG = (theme: AppTheme) => ({
   height: 600,
 });
 
+
 export const SYMBOL_INFO_WIDGET_CONFIG = (symbol: string) => ({
-    symbol: symbol.toUpperCase(),
-    colorTheme: 'dark',
-    isTransparent: true,
-    locale: 'en',
-    width: '100%',
-    height: 170,
+  symbol: symbol.toUpperCase(),
+  colorTheme: "dark",
+  isTransparent: true,
+  locale: "en",
+  width: "100%",
+  height: 170,
+
+  // UI polish
+  showVolume: false,
+  showChange: true,
 });
+
 
 export const CANDLE_CHART_WIDGET_CONFIG = (symbol: string) => ({
-    allow_symbol_change: false,
-    calendar: false,
-    details: true,
-    hide_side_toolbar: true,
-    hide_top_toolbar: false,
-    hide_legend: false,
-    hide_volume: false,
-    hotlist: false,
-    interval: 'D',
-    locale: 'en',
-    save_image: false,
-    style: 1,
-    symbol: symbol.toUpperCase(),
-    theme: 'dark',
-    timezone: 'Etc/UTC',
-    backgroundColor: '#141414',
-    gridColor: '#141414',
-    watchlist: [],
-    withdateranges: false,
-    compareSymbols: [],
-    studies: [],
-    width: '100%',
-    height: 600,
+  symbol: symbol.toUpperCase(),
+  theme: "dark",
+  locale: "en",
+  timezone: "Etc/UTC",
+
+  // Chart behavior
+  interval: "D",
+  style: 1, // Candles
+  details: true,
+  calendar: false,
+
+  // Toolbars
+  hide_side_toolbar: true,
+  hide_top_toolbar: false,
+  hide_legend: false,
+  hide_volume: false,
+
+  // Disable clutter
+  allow_symbol_change: false,
+  hotlist: false,
+  save_image: false,
+  watchlist: [],
+  compareSymbols: [],
+  studies: [],
+  withdateranges: false,
+
+  // Visual polish
+  backgroundColor: "#0f0f0f",
+  gridColor: "rgba(255,255,255,0.04)",
+
+  width: "100%",
+  height: 520,
 });
+
 
 export const BASELINE_WIDGET_CONFIG = (symbol: string) => ({
-    allow_symbol_change: false,
-    calendar: false,
-    details: false,
-    hide_side_toolbar: true,
-    hide_top_toolbar: false,
-    hide_legend: false,
-    hide_volume: false,
-    hotlist: false,
-    interval: 'D',
-    locale: 'en',
-    save_image: false,
-    style: 10,
-    symbol: symbol.toUpperCase(),
-    theme: 'dark',
-    timezone: 'Etc/UTC',
-    backgroundColor: '#141414',
-    gridColor: '#141414',
-    watchlist: [],
-    withdateranges: false,
-    compareSymbols: [],
-    studies: [],
-    width: '100%',
-    height: 600,
+  symbol: symbol.toUpperCase(),
+  theme: "dark",
+  locale: "en",
+  timezone: "Etc/UTC",
+
+  interval: "D",
+  style: 10, // Baseline
+  details: false,
+
+  hide_side_toolbar: true,
+  hide_top_toolbar: false,
+  hide_legend: false,
+  hide_volume: true,
+
+  allow_symbol_change: false,
+  hotlist: false,
+  save_image: false,
+  watchlist: [],
+  compareSymbols: [],
+  studies: [],
+  withdateranges: false,
+
+  backgroundColor: "#0f0f0f",
+  gridColor: "rgba(255,255,255,0.04)",
+
+  width: "100%",
+  height: 420,
 });
+
 
 export const TECHNICAL_ANALYSIS_WIDGET_CONFIG = (symbol: string) => ({
-    symbol: symbol.toUpperCase(),
-    colorTheme: 'dark',
-    isTransparent: 'true',
-    locale: 'en',
-    width: '100%',
-    height: 400,
-    interval: '1h',
-    largeChartUrl: '',
+  symbol: symbol.toUpperCase(),
+  colorTheme: "dark",
+  isTransparent: true, // FIX: boolean, not string
+  locale: "en",
+
+  interval: "1h", // Good balance for swing + intraday
+  width: "100%",
+  height: 380,
+
+  largeChartUrl: "",
 });
+
 
 export const COMPANY_PROFILE_WIDGET_CONFIG = (symbol: string) => ({
-    symbol: symbol.toUpperCase(),
-    colorTheme: 'dark',
-    isTransparent: 'true',
-    locale: 'en',
-    width: '100%',
-    height: 440,
+  symbol: symbol.toUpperCase(),
+  colorTheme: "dark",
+  isTransparent: true, // FIX
+  locale: "en",
+
+  width: "100%",
+  height: 420,
 });
 
+
 export const COMPANY_FINANCIALS_WIDGET_CONFIG = (symbol: string) => ({
-    symbol: symbol.toUpperCase(),
-    colorTheme: 'dark',
-    isTransparent: 'true',
-    locale: 'en',
-    width: '100%',
-    height: 464,
-    displayMode: 'regular',
-    largeChartUrl: '',
+  symbol: symbol.toUpperCase(),
+  colorTheme: "dark",
+  isTransparent: true, // FIX
+  locale: "en",
+
+  displayMode: "regular",
+  width: "100%",
+  height: 460,
+
+  largeChartUrl: "",
 });
 
 export const POPULAR_STOCK_SYMBOLS = [
